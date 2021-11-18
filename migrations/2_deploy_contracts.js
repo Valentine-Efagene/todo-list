@@ -1,7 +1,7 @@
-//var TodoList = artifacts.require('TodoList')
-var Adoption = artifacts.require('Adoption')
+var TodoList = artifacts.require('TodoList')
+//var Adoption = artifacts.require('Adoption')
 
 module.exports = function (deployer) {
-  //deployer.deploy(TodoList)
-  deployer.deploy(Adoption)
+  deployer.deploy(TodoList)
+  //deployer.deploy(Adoption)
 }

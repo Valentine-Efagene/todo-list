@@ -19,6 +19,7 @@
     "web3": "^1.5.3"
   },
   "scripts": {
+    "dev": "lite-server",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
