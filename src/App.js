@@ -1,41 +1,59 @@
 import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import { Button } from '@mui/material'
 //import logo from './logo.svg'
 import './App.css'
 import NavBar from './components/NavBar/NavBar'
+import { DataGrid } from '@mui/x-data-grid'
 
 function App() {
   const [dapp, setDapp] = useState({
     web3Provider: null,
     accounts: [],
     contracts: { TodoList: null },
+    instances: { TodoList: null },
   })
 
   const [taskCount, setTaskCount] = useState()
+  const [taskContent, setTaskContent] = useState()
+  const [tasks, setTasks] = useState([])
+
+  useEffect(() => {
+    // This is because the the getTask function depends on the number of tasks,
+    // and for some currently unknown reason, task count isn't set sometimes
+    // before getTasks is called, even when they come after each other in
+    // awaits, or then structure
+    getTasks()
+  }, [taskCount])
 
   const init = async () => {
-    let _dapp = {
-      web3Provider: null,
-      accounts: [],
-      contracts: { TodoList: null },
-    }
+    await setUp()
+    await getTaskCount()
+  }
 
+  useEffect(() => {
+    init()
+  }, [])
+
+  async function setUp() {
+    let _dapp = Object.assign({}, dapp)
     // Modern dapp browsers...
     if (window.ethereum) {
-      console.log('has ethereum')
+      //console.log('has ethereum')
       _dapp.web3Provider = window.ethereum
       try {
         // Request account access
         await window.ethereum.request({ method: 'eth_requestAccounts' })
       } catch (error) {
         // User denied account access...
-        console.log('User denied account access')
         console.error('User denied account access')
       }
     }
     // Legacy dapp browsers...
     else if (window.web3) {
-      console.log('has web3')
+      //console.log('has web3')
       _dapp.web3Provider = window.web3.currentProvider
     }
 
@@ -44,60 +62,97 @@ function App() {
       _dapp.web3Provider = new Web3.providers.HttpProvider(
         'http://localhost:7545'
       )
-      console.log('Fell back')
+      //console.log('Fell back')
     }
 
     const web3 = new Web3(_dapp.web3Provider)
 
     const response = await fetch('./contracts/TodoList.json')
     const todoList = await response.json()
-    //console.log(todoList)
 
     try {
       _dapp.accounts = await web3.eth.getAccounts()
-      console.log(_dapp.accounts?.[0])
     } catch (e) {
       setError(e.message)
       console.log(e.message)
     }
 
     _dapp.contracts.TodoList = TruffleContract(todoList)
-    console.log(_dapp.contracts.TodoList)
-    _dapp.contracts.TodoList.setProvider(_dapp.web3Provider)
+    _dapp.contracts?.TodoList.setProvider(_dapp.web3Provider)
 
+    _dapp.instances.TodoList = await _dapp.contracts.TodoList.deployed()
     setDapp(_dapp)
-    await getTaskCount()
-    //https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html
-    /*const todoListContract = new web3.eth.Contract(todoList.abi)
-    const s = todoListContract.deploy({ data: todoList.bytecode })
-    console.log(s)*/
   }
 
-  useEffect(() => {
-    init()
-  }, [])
-
-  /**
-   *
-   * @param {string} task
-   */
-  async function handleCreateTask(task) {
-    var todoListInstance = await dapp.contracts.TodoList.deployed()
-    await todoListInstance.createTask(task, { from: dapp.accounts[0] })
+  async function handleCreateTask() {
+    await dapp.instances.TodoList.createTask(taskContent, {
+      from: dapp.accounts[0],
+    })
+    setTaskContent(null)
+    await getTaskCount()
   }
 
   const getTaskCount = async () => {
-    console.log('got here')
-    return
-    var todoListInstance = await dapp.contracts.TodoList.deployed()
-    const _taskCount = await todoListInstance.taskCount.call()
-    setTaskCount(_taskCount)
+    const _taskCount = await dapp.instances.TodoList.taskCount.call()
+    setTaskCount(_taskCount?.words?.[0])
   }
+
+  const getTasks = async () => {
+    let _tasks = []
+
+    for (let i = 1; i <= taskCount; i++) {
+      try {
+        const _task = await dapp.instances.TodoList.tasks.call(i)
+        _tasks.push({ id: _task?.id?.words?.[0], content: _task.content })
+      } catch (e) {
+        console.log(err)
+      }
+    }
+
+    setTasks(_tasks)
+  }
+
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 70 },
+    { field: 'content', headerName: 'Content', width: 130 },
+  ]
 
   return (
     <div className="App">
       <NavBar address={dapp.accounts?.[0]} />
       {taskCount}
+      <Box
+        component="form"
+        alignItems="center"
+        justifyContent="center"
+        sx={{
+          '& .MuiTextField-root': { m: 1, width: '25ch' },
+        }}
+        noValidate
+        autoComplete="off"
+      >
+        <TextField
+          onChange={(e) => {
+            setTaskContent(e.target.value)
+          }}
+          id="task"
+          label="Task"
+          value={taskContent ? taskContent : ''}
+        />
+        <Button variant="contained" onClick={handleCreateTask}>
+          Add
+        </Button>
+      </Box>
+      <div style={{ height: 400, width: '100%' }}>
+        <DataGrid
+          sortModel={[{ field: 'id', sort: 'desc' }]}
+          rows={tasks}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          //checkboxSelection
+        />
+      </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.10;
 
 contract TodoList {
   uint256 public taskCount = 0;
@@ -15,6 +15,19 @@ contract TodoList {
 
   constructor() {
     createTask('Check out dappuniversity.com');
+  }
+
+  function getTask(uint256 _id)
+    public
+    view
+    returns (
+      uint256 id,
+      string memory content,
+      bool completed
+    )
+  {
+    Task memory task = tasks[_id];
+    return (task.id, task.content, task.completed);
   }
 
   function createTask(string memory _content) public {
