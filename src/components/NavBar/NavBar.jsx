@@ -4,30 +4,21 @@ import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 //import Button from '@mui/material/Button'
+import './NavBar.css'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
-import Error from '../Error/Error'
 import { string } from 'prop-types'
-import TruffleContract from '@truffle/contract'
+import { useSelector } from 'react-redux'
+import { BrowserRouter, Link } from 'react-router-dom'
 
-export default function NavBar({ address }) {
-  const [error, setError] = useState()
+// https://stackoverflow.com/a/54519524/6132438
 
-  const onClose = () => {
-    setError(null)
-  }
+export default function NavBar() {
+  const { todoList } = useSelector((state) => state.todoList)
+  const accounts = todoList?.accounts
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Error error={error} onClose={onClose} />
-
-      {/* <Button
-        onClick={() => {
-          setError('Error')
-        }}
-      >
-        Open simple snackbar
-      </Button> */}
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -40,7 +31,15 @@ export default function NavBar({ address }) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Dapp University | Todo List
+            <Link className="link" to="/">
+              TodoList
+            </Link>
+          </Typography>
+          {'|'}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Link className="link" to="/metacoin">
+              Meta Coin
+            </Link>
           </Typography>
           {/* <Button color="inherit">Login</Button> */}
           <Typography
@@ -51,7 +50,7 @@ export default function NavBar({ address }) {
               flexGrow: 1,
             }}
           >
-            {address}
+            {accounts?.[0]}
           </Typography>
         </Toolbar>
       </AppBar>
