@@ -121,8 +121,8 @@ const TodoList = () => {
   }
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'content', headerName: 'Content', width: 130 },
+    { field: 'id', headerName: 'ID', flex: 1 },
+    { field: 'content', headerName: 'Content', flex: 1 },
   ]
 
   return (
@@ -134,6 +134,7 @@ const TodoList = () => {
         justifyContent="center"
         sx={{
           '& .MuiTextField-root': { m: 1, width: '25ch' },
+          display: 'flex',
         }}
         noValidate
         autoComplete="off"

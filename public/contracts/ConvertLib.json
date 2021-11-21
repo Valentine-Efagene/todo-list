@@ -23,7 +23,8 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"conversionRate\",\"type\":\"uint256\"}],\"name\":\"convert\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"convertedAmount\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/ConvertLib.sol\":\"ConvertLib\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/ConvertLib.sol\":{\"keccak256\":\"0xf46342f08c3f9feb1c1fe48ca0d5c7567ea6c2bc6b04d53f0d5f54ed15086068\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4f915fd7e48495644224535aceb353cc74381be434f0d78194bc16a66b9f7971\",\"dweb:/ipfs/QmXpR55gPBEk4WdQAPxE6q4kM7R25uC6Ha1CoDJa6TW3zQ\"]}},\"version\":1}",
@@ -1560,9 +1561,17 @@
     "name": "solc",
     "version": "0.8.10+commit.fc410830.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0x9817e0E5Ab06084C1DF6A13bF1bfd422af82c5b5",
+      "transactionHash": "0xfc98b2d51f15a693cbc7d97e45054006c84c263e0b84a2f0f60ee22078f65f30"
+    }
+  },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-20T12:36:12.921Z",
+  "updatedAt": "2021-11-21T14:46:58.906Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

@@ -9,10 +9,11 @@ import { useDispatch } from 'react-redux'
 import { setAccounts } from '../../../redux/slice/todoListSlice'
 import TruffleContract from '@truffle/contract'
 
-const MetaCoin = () => {
+const Transfer = () => {
   const [error, setError] = useState()
   const dispatch = useDispatch()
   const [dapp, setDapp] = useState({
+    web3: null,
     web3Provider: null,
     accounts: [],
     contracts: { MetaCoin: null },
@@ -20,7 +21,7 @@ const MetaCoin = () => {
   })
 
   const [balance, setBalance] = useState()
-  const [token, setToken] = useState()
+  const [ether, setEther] = useState()
   const [target, setTarget] = useState()
 
   const onClose = () => {
@@ -29,7 +30,7 @@ const MetaCoin = () => {
 
   useEffect(() => {
     if (dapp.accounts?.[0]) {
-      getBalance(dapp.accounts[0])
+      getBalance(dapp.accounts?.[0])
     }
   }, [dapp])
 
@@ -70,9 +71,7 @@ const MetaCoin = () => {
     }
 
     const web3 = new Web3(_dapp.web3Provider)
-
-    const response = await fetch('./contracts/MetaCoin.json')
-    const metaCoin = await response.json()
+    _dapp.web3 = web3
 
     try {
       _dapp.accounts = await web3.eth.getAccounts()
@@ -82,43 +81,24 @@ const MetaCoin = () => {
       console.log(e.message)
     }
 
-    _dapp.contracts.MetaCoin = TruffleContract(metaCoin)
-    _dapp.contracts?.MetaCoin.setProvider(_dapp.web3Provider)
-
-    _dapp.instances.MetaCoin = await _dapp.contracts.MetaCoin.deployed()
     //console.log(_dapp.instances.MetaCoin !== null ? 'Ok' : "Didn't get it!")
     setDapp(_dapp)
   }
 
-  async function sendCoin(_target, _token) {
-    console.log(dapp.accounts?.[0], _target)
-    await dapp.instances.MetaCoin.sendCoin(_target, _token, {
+  async function send(_target, _ether) {
+    await dapp.web3.eth.sendTransaction({
       from: dapp.accounts?.[0],
+      to: _target,
+      value: dapp.web3?.utils.toWei(ether, 'ether'),
     })
-    setToken(null)
+    setEther(null)
     await getBalance()
   }
 
   const getBalance = async () => {
-    const _balance = await dapp.instances.MetaCoin.getBalance.call(
-      dapp.accounts?.[0]
-    )
-    //console.log(_balance)
-    setBalance(_balance?.toNumber())
+    const _balance = await dapp.web3?.eth?.getBalance(dapp.accounts?.[0])
+    setBalance(dapp.web3.utils.fromWei(_balance), 'ether')
   }
-
-  const getBalanceInEther = async () => {
-    const _balance = await dapp.instances.MetaCoin.getBalanceInEth.call(
-      dapp.accounts?.[0]
-    )
-    console.log(_balance)
-    setBalance(_balance?.toNumber())
-  }
-
-  /*const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'content', headerName: 'Content', width: 130 },
-  ]*/
 
   return (
     <>
@@ -146,16 +126,16 @@ const MetaCoin = () => {
         />
         <TextField
           onChange={(e) => {
-            setToken(e.target.value)
+            setEther(e.target.value)
           }}
-          id="token"
-          label="token"
-          value={token ? token : ''}
+          id="ether"
+          label="ether"
+          value={ether ? ether : ''}
         />
         <Button
           variant="contained"
           onClick={() => {
-            sendCoin(target, token)
+            send(target, ether)
           }}
         >
           Transfer
@@ -165,6 +145,6 @@ const MetaCoin = () => {
   )
 }
 
-export default MetaCoin
+export default Transfer
 
-MetaCoin.propTypes = {}
+Transfer.propTypes = {}
